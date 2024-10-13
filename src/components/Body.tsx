@@ -1,15 +1,13 @@
-import EmailGen from "./emailGen";
-import { ProgressCard } from "./ExampleCard";
-import { GlobalMetrics } from "./globalMetrics";
-import { GlobalAverage } from "./globalAverage";
-import { GlobalPassFail } from "./globalPassFail";
+import EmailGen from './emailGen';
+import { GlobalMetrics } from './globalMetrics';
+import { GlobalAverage } from './globalAverage';
+import { GlobalPassFail } from './globalPassFail';
+import UserCard from './userCard';
 
 export function MainBody() {
 	return (
 		<div className="h-full mx-auto grid-cols-2 grid items-start justify-center gap-8 p-6">
-			<div className="grid w-full h-full gap-6">
-				<ProgressCard />
-			</div>
+			<UserCard />
 			<div className="grid w-full flex-1 gap-6 h-full">
 				<EmailGen />
 				<GlobalMetrics />
