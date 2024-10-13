@@ -2,6 +2,8 @@ import { Global } from "recharts";
 import EmailGen from "./emailGen";
 import { ProgressCard } from "./ExampleCard";
 import { GlobalMetrics } from "./globalMetrics";
+import { GlobalAverage } from "./globalAverage";
+import { GlobalPassFail } from "./globalPassFail";
 
 export function MainBody() {
 	return (
@@ -13,8 +15,8 @@ export function MainBody() {
 				<EmailGen />
 				<GlobalMetrics />
 				<div className="mx-auto grid-cols-2 grid gap-6 w-full">
-					<ProgressCard />
-					<ProgressCard />
+					<GlobalAverage />
+					<GlobalPassFail />
 				</div>
 			</div>
 		</div>
