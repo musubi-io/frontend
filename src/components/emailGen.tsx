@@ -38,7 +38,7 @@ export default function EmailGen() {
 	const prevStep = () => setStep(step - 1);
 
 	const fetchFirstApi = async (data: { sender: string; context: string; goal: string }) => {
-		const response = await fetch('http://localhost:8000/api/generatePhishEmails', {
+		const response = await fetch('http://localhost:6900/api/generatePhishEmails', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export default function EmailGen() {
 		return response.json();
 	};
 	const fetchSecondApi = async (data: { name: string; subject: string; body: string }) => {
-		const response = await fetch('http://localhost:8000/api/phishEmails', {
+		const response = await fetch('http://localhost:6900/api/phishEmails', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

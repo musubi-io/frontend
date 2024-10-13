@@ -1,20 +1,28 @@
 import { useState } from "react";
 import { AutoComplete } from "../ui/autocomplete";
 import { useQuery } from "@tanstack/react-query";
+import fuzzysort from "fuzzysort";
 
 export default function UserAutoComplete({setCurrentUser} : {setCurrentUser: React.Dispatch<React.SetStateAction<string | null>>}) {
-    const [selectedValue, setSelectedValue] = useState<string>("");
+    const [selectedValue, _setSelectedValue] = useState<string>("");
     const [searchValue, setSearchValue] = useState<string>("");
   
     const { data, isLoading } = useQuery({
-      queryKey: ['users'],
+      queryKey: ['users', searchValue],
       queryFn: async () => {
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a 2-second delay
-        return [
-          { value: '1', label: 'John Doe' },
-          { value: '2', label: 'Jane Smith' },
-          { value: '3', label: 'Alice Johnson' },
-        ];
+        
+        const response = await fetch(`http://localhost:6900/api/emailSearch?email=${searchValue}`);
+
+        const data = await response.json();
+
+        const sampleResponse = data.email;
+        if (searchValue == "") {
+          return []
+        }
+
+        return (searchValue) ? 
+          fuzzysort.go(searchValue, sampleResponse, {key: 'label'}).map(x => x.obj) : 
+          sampleResponse;
       }
     });
   
