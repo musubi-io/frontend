@@ -1,16 +1,18 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import Search from "./userCard/search";
-import UserMetrics from "./userMetrics";
-import { UserAverage } from "./userAverage";
-
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import Search from './userCard/search';
+import { UserAverage } from './userAverage';
+import UserMetrics from './userMetrics';
 
 export default function UserCard() {
+	const [currentUser, setCurrentUser] = useState<string | null>(null);
+
 	return (
 		<Card>
 			<CardHeader title="User Details" />
 			<CardContent>
 				<div className="flex justify-center mb-4">
-					<Search/>
+					<Search setCurrentUser={setCurrentUser} />
 				</div>
 				<div>
 					<Card className="mb-4">
@@ -19,7 +21,7 @@ export default function UserCard() {
 							<CardDescription>John Doe on 01/01/2024</CardDescription>
 						</CardHeader>
 						<CardContent>
-						<UserMetrics />
+							<UserMetrics />
 						</CardContent>
 					</Card>
 
