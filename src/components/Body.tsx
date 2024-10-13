@@ -1,4 +1,3 @@
-import { Global } from "recharts";
 import EmailGen from "./emailGen";
 import { ProgressCard } from "./ExampleCard";
 import { GlobalMetrics } from "./globalMetrics";

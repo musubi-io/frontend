@@ -4,6 +4,8 @@
 import { BarChart, Bar, LabelList, YAxis, XAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { ChartContainer } from "./ui/chart";
+import UserMetrics from "./userMetrics";
+import {UserAverage} from "./userAverage";
 
 export function ProgressCard() {
 	return (
@@ -88,6 +90,14 @@ export function ProgressCard() {
 							<XAxis dataKey="steps" type="number" hide />
 						</BarChart>
 					</ChartContainer>
+				</div>
+				<Card>
+					<CardContent>
+						<UserMetrics />
+					</CardContent>
+				</Card>
+				<div>
+					<UserAverage />
 				</div>
 			</CardContent>
 		</Card>
