@@ -1,23 +1,27 @@
-// import { Card, CardContent, CardTitle, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { Spinner } from './ui/spinner';
+import { Card, CardTitle } from './ui/card';
 
-// Simulated API call function
+interface GenFormType {
+	sender: string;
+	context: string;
+	goal: string;
+}
+
 const simulateApiCall = async (data: { sender?: string; context?: string; goal?: string; additionalInfo?: string; content?: string | undefined }) => {
 	await new Promise((resolve) => setTimeout(resolve, 3000));
 	return { text: `Simulated response for: ${JSON.stringify(data)}` };
 };
 
-const defaultFormData = {
+const defaultFormData: GenFormType = {
 	sender: '',
 	context: '',
 	goal: '',
-	additionalInfo: '',
 };
 
 export default function EmailGen() {
@@ -32,14 +36,12 @@ export default function EmailGen() {
 	const nextStep = () => setStep(step + 1);
 	const prevStep = () => setStep(step - 1);
 
-	// Step 1: Send data to first API
 	const firstApiQuery = useQuery({
 		queryKey: ['firstApi', formData],
 		queryFn: () => simulateApiCall(formData),
 		enabled: false,
 	});
 
-	// Step 3: Send textarea content to second API
 	const secondApiQuery = useQuery({
 		queryKey: ['secondApi', firstApiQuery.data?.text],
 		queryFn: () => simulateApiCall({ content: firstApiQuery.data?.text }),
@@ -58,93 +60,109 @@ export default function EmailGen() {
 	};
 
 	return (
-		<div className="relative flex flex-col items-start gap-8">
+		<Card className="relative flex flex-col items-start gap-8">
 			<form className="grid w-full items-start gap-6" onSubmit={handleSubmit}>
-				{step === 1 && (
-					<fieldset className="grid gap-6 rounded-lg border p-4">
-						<legend className="-ml-1 px-1 text-sm font-medium">Step 1: Sender Information</legend>
-						<div className="grid gap-3">
-							<Label htmlFor="sender">Sender</Label>
-							<Input id="sender" type="text" placeholder="Enter sender's name" value={formData.sender} onChange={handleChange} />
-						</div>
-						<div className="grid gap-3">
-							<Label htmlFor="context">Context</Label>
-							<Input id="context" type="text" placeholder="Enter message context" value={formData.context} onChange={handleChange} />
-						</div>
-						<div className="grid gap-3">
-							<Label htmlFor="goal">Goal</Label>
-							<Input id="goal" type="text" placeholder="Enter message goal" value={formData.goal} onChange={handleChange} />
-						</div>
-						<Button type="submit" className="w-full">
-							Submit
-						</Button>
-					</fieldset>
-				)}
-				{step === 2 && (
-					<fieldset className="grid gap-6 rounded-lg border p-4">
-						<legend className="-ml-1 px-1 text-sm font-medium">Step 2: API Response</legend>
-						{firstApiQuery.isLoading ? (
-							<Spinner/>
-						) : firstApiQuery.isError ? (
-							<p>Error: {firstApiQuery.error.message}</p>
-						) : (
-							<Textarea
-								value={firstApiQuery.data?.text || ''}
-								onChange={(e) => {
-									if (firstApiQuery.data) {
-										firstApiQuery.data.text = e.target.value;
-									}
-								}}
-								rows={6}
-								placeholder="API response will appear here"
-							/>
-						)}
-						<div className="flex justify-between">
-							<Button type="button" onClick={prevStep}>
-								Previous
-							</Button>
-							<Button type="button" onClick={nextStep} disabled={firstApiQuery.isLoading || firstApiQuery.isError}>
-								Next
-							</Button>
-						</div>
-					</fieldset>
-				)}
-				{step === 3 && (
-					<fieldset className="grid gap-6 rounded-lg border p-4">
-						<legend className="-ml-1 px-1 text-sm font-medium">Step 3: Submit Response</legend>
-						<Textarea
-							value={firstApiQuery.data?.text || ''}
-							onChange={(e) => {
-								if (firstApiQuery.data) {
-									firstApiQuery.data.text = e.target.value;
-								}
-							}}
-							rows={6}
-							placeholder="Edit response if needed"
-						/>
-						<div className="flex justify-between">
-							<Button type="button" onClick={prevStep}>
-								Previous
-							</Button>
-							<Button type="submit">Submit</Button>
-						</div>
-					</fieldset>
-				)}
-				{step === 4 && (
-					<fieldset className="grid gap-6 rounded-lg border p-4">
-						<legend className="-ml-1 px-1 text-sm font-medium">Step 4: Completion</legend>
-						{secondApiQuery.isLoading ? (
-							<p>Submitting...</p>
-						) : secondApiQuery.isError ? (
-							<p>Error: {secondApiQuery.error.message}</p>
-						) : secondApiQuery.isSuccess ? (
-							<p>Thank you for your submission!</p>
-						) : (
-							<p>Waiting for submission...</p>
-						)}
-					</fieldset>
-				)}
+				{step === 1 && <GenerateStep formData={formData} handleChange={handleChange} />}
+				{step === 2 && <ResponseStep query={firstApiQuery} prevStep={prevStep} nextStep={nextStep} />}
+				{step === 3 && <SubmitResponseStep query={firstApiQuery} prevStep={prevStep} />}
+				{step === 4 && <CompletionStep query={secondApiQuery} />}
 			</form>
-		</div>
+		</Card>
+	);
+}
+
+function ResponseStep({ query, prevStep, nextStep }: { query: UseQueryResult<{ text: string }, Error>; prevStep: () => void; nextStep: () => void }) {
+	return (
+		<fieldset className="grid gap-6 rounded-lg border p-4">
+			<CardTitle className="text-sm font-medium">Step 2: API Response</CardTitle>
+			{query.isLoading ? (
+				<Spinner />
+			) : query.isError ? (
+				<p>Error: {query.error.message}</p>
+			) : (
+				<Textarea
+					value={query.data?.text || ''}
+					onChange={(e) => {
+						if (query.data) {
+							query.data.text = e.target.value;
+						}
+					}}
+					rows={6}
+					placeholder="API response will appear here"
+				/>
+			)}
+			<div className="flex justify-between">
+				<Button type="button" onClick={prevStep}>
+					Previous
+				</Button>
+				<Button type="button" onClick={nextStep} disabled={query.isLoading || query.isError}>
+					Next
+				</Button>
+			</div>
+		</fieldset>
+	);
+}
+
+function SubmitResponseStep({ query, prevStep }: { query: UseQueryResult<{ text: string }, Error>; prevStep: () => void }) {
+	return (
+		<fieldset className="grid gap-6 rounded-lg border p-4">
+			<legend className="-ml-1 px-1 text-sm font-medium">Step 3: Submit Response</legend>
+			<Textarea
+				value={query.data?.text || ''}
+				onChange={(e) => {
+					if (query.data) {
+						query.data.text = e.target.value;
+					}
+				}}
+				rows={6}
+				placeholder="Edit response if needed"
+			/>
+			<div className="flex justify-between">
+				<Button type="button" onClick={prevStep}>
+					Previous
+				</Button>
+				<Button type="submit">Submit</Button>
+			</div>
+		</fieldset>
+	);
+}
+
+function CompletionStep({ query }: { query: UseQueryResult<{ text: string }, Error> }) {
+	return (
+		<fieldset className="grid gap-6 rounded-lg border p-4">
+			<CardTitle className="text-sm font-medium">Step 4: Completion</CardTitle>
+			{query.isLoading ? (
+				<p>Submitting...</p>
+			) : query.isError ? (
+				<p>Error: {query.error.message}</p>
+			) : query.isSuccess ? (
+				<p>Thank you for your submission!</p>
+			) : (
+				<p>Waiting for submission...</p>
+			)}
+		</fieldset>
+	);
+}
+
+function GenerateStep({ handleChange, formData }: { formData: GenFormType; handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
+	return (
+		<fieldset className="grid gap-6 rounded-lg border p-4">
+			<CardTitle className="text-sm font-medium">Generate Email</CardTitle>
+			<div className="grid gap-3">
+				<Label htmlFor="sender">Sender</Label>
+				<Input id="sender" type="text" placeholder="Enter sender's name" value={formData.sender} onChange={handleChange} />
+			</div>
+			<div className="grid gap-3">
+				<Label htmlFor="context">Context</Label>
+				<Input id="context" type="text" placeholder="Enter message context" value={formData.context} onChange={handleChange} />
+			</div>
+			<div className="grid gap-3">
+				<Label htmlFor="goal">Goal</Label>
+				<Input id="goal" type="text" placeholder="Enter message goal" value={formData.goal} onChange={handleChange} />
+			</div>
+			<Button type="submit" className="w-full">
+				Submit
+			</Button>
+		</fieldset>
 	);
 }
