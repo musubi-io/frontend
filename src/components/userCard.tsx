@@ -9,7 +9,7 @@ export default function UserCard() {
 
 	return (
 		<Card>
-			<CardHeader title="User Details" />
+			<CardHeader> User Details </CardHeader>
 			<CardContent>
 				<div className="flex justify-center mb-4">
 					<Search setCurrentUser={setCurrentUser} />
