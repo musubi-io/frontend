@@ -39,9 +39,9 @@ export function UserAverage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Score Average</CardTitle>
+        <CardTitle>Spam Scores </CardTitle>
         <CardDescription>
-          Score averages for recent spams
+          User security score averages for recent spams
         </CardDescription>
       </CardHeader>
       <CardContent>

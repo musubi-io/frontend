@@ -10,25 +10,25 @@ import {
       name: "Reported",
       val: 18,
       pv: 2400,
-      fill: "#8884d8",
+      fill: "#6ee7b7",
     },
     {
       name: "Link Clicked",
       val: 100,
       pv: 4567,
-      fill: "#83a6ed",
+      fill: "#fca5a5",
     },
     {
       name: "Shared",
       val: 31,
       pv: 1398,
-      fill: "#8dd1e1",
+      fill: "#fde047",
     },
     {
       name: "Responded",
       val: 35.22,
       pv: 9800,
-      fill: "#82ca9d",
+      fill: "#D8B4FE",
     },
   ];
   

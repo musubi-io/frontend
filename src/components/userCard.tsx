@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ProgressCard } from './ExampleCard';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import Search from './userCard/search';
 import { UserAverage } from './userAverage';
 import UserMetrics from './userMetrics';
@@ -16,7 +15,11 @@ export default function UserCard() {
 					<Search setCurrentUser={setCurrentUser} />
 				</div>
 				<div>
-					<Card>
+					<Card className="mb-4">
+						<CardHeader>
+							<CardTitle> User Summary</CardTitle>
+							<CardDescription>John Doe on 01/01/2024</CardDescription>
+						</CardHeader>
 						<CardContent>
 							<UserMetrics />
 						</CardContent>
