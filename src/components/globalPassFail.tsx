@@ -21,8 +21,8 @@ import {
 export const description = "A donut chart with text"
 
 const chartData = [
-  { status: "Pass", people: 275, fill: "#6ee7b7" },
-  { status: "Review", people: 200, fill: "#fde047" },
+  { status: "Pass", people: 375, fill: "#6ee7b7" },
+  { status: "Review", people: 100, fill: "#fde047" },
   { status: "Fail", people: 287, fill: "#fca5a5" },
 ]
 
@@ -51,9 +51,9 @@ export function GlobalPassFail() {
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Status</CardTitle>
-        <CardDescription>Pass, review, fail rates</CardDescription>
+      <CardHeader>
+        <CardTitle>Status Summary</CardTitle>
+        <CardDescription>View overall status rates</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
