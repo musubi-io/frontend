@@ -8,7 +8,7 @@ export default function App() {
 	return (
 		<div className="flex flex-col h-screen">
 			<Header />
-			<div className="flex-grow-1 overflow-auto w-full">
+			<div className="flex-grow-1 h-full overflow-auto w-full">
 				<MainBody />
 			</div>
 		</div>
