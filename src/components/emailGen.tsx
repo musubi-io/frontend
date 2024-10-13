@@ -27,6 +27,7 @@ const defaultFormData: GenFormType = {
 export default function EmailGen() {
 	const [step, setStep] = useState(1);
 	const [formData, setFormData] = useState(defaultFormData);
+	const [name, setName] = useState('');
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { id, value } = e.target;
@@ -36,16 +37,52 @@ export default function EmailGen() {
 	const nextStep = () => setStep(step + 1);
 	const prevStep = () => setStep(step - 1);
 
+	const fetchFirstApi = async (data: { sender: string; context: string; goal: string }) => {
+		const response = await fetch('http://localhost:8000/api/generatePhishEmails', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		return response.json();
+	};
+	const fetchSecondApi = async (data: { name: string; subject: string; body: string }) => {
+		const response = await fetch('http://localhost:8000/api/phishEmails', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
+		});
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		return response.json();
+	};
+
 	const firstApiQuery = useQuery({
 		queryKey: ['firstApi', formData],
-		queryFn: () => simulateApiCall(formData),
-		enabled: false,
+		queryFn: () => fetchFirstApi(formData),
+		enabled: true,
 	});
 
 	const secondApiQuery = useQuery({
-		queryKey: ['secondApi', firstApiQuery.data?.text],
-		queryFn: () => simulateApiCall({ content: firstApiQuery.data?.text }),
-		enabled: false,
+		queryKey: ['secondApi', { subject: firstApiQuery.data?.subject, body: firstApiQuery.data?.body }],
+		queryFn: () =>
+			fetchSecondApi({
+				name: firstApiQuery.data?.subject + firstApiQuery.data?.body,
+				subject: firstApiQuery.data?.subject,
+				body: firstApiQuery.data?.body,
+			}),
+		enabled: true,
 	});
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -64,14 +101,22 @@ export default function EmailGen() {
 			<form className="grid w-full items-start gap-6" onSubmit={handleSubmit}>
 				{step === 1 && <GenerateStep formData={formData} handleChange={handleChange} />}
 				{step === 2 && <ResponseStep query={firstApiQuery} prevStep={prevStep} nextStep={nextStep} />}
-				{step === 3 && <SubmitResponseStep query={firstApiQuery} prevStep={prevStep} />}
+				{step === 3 && <SubmitResponseStep query={firstApiQuery} prevStep={prevStep} name={name} setName={setName} />}
 				{step === 4 && <CompletionStep query={secondApiQuery} />}
 			</form>
 		</Card>
 	);
 }
 
-function ResponseStep({ query, prevStep, nextStep }: { query: UseQueryResult<{ text: string }, Error>; prevStep: () => void; nextStep: () => void }) {
+function ResponseStep({
+	query,
+	prevStep,
+	nextStep,
+}: {
+	query: UseQueryResult<{ subject: string; body: string }, Error>;
+	prevStep: () => void;
+	nextStep: () => void;
+}) {
 	return (
 		<fieldset className="grid gap-6 rounded-lg border p-4">
 			<CardTitle className="text-sm font-medium">Step 2: API Response</CardTitle>
@@ -80,16 +125,31 @@ function ResponseStep({ query, prevStep, nextStep }: { query: UseQueryResult<{ t
 			) : query.isError ? (
 				<p>Error: {query.error.message}</p>
 			) : (
-				<Textarea
-					value={query.data?.text || ''}
-					onChange={(e) => {
-						if (query.data) {
-							query.data.text = e.target.value;
-						}
-					}}
-					rows={6}
-					placeholder="API response will appear here"
-				/>
+				<>
+					<Label htmlFor="subject">Subject</Label>
+					<Input
+						id="subject"
+						value={query.data?.subject || ''}
+						onChange={(e) => {
+							if (query.data) {
+								query.data.subject = e.target.value;
+							}
+						}}
+						placeholder="API response subject will appear here"
+					/>
+					<Label htmlFor="body">Body</Label>
+					<Textarea
+						id="body"
+						value={query.data?.body || ''}
+						onChange={(e) => {
+							if (query.data) {
+								query.data.body = e.target.value;
+							}
+						}}
+						rows={6}
+						placeholder="API response body will appear here"
+					/>
+				</>
 			)}
 			<div className="flex justify-between">
 				<Button type="button" onClick={prevStep}>
@@ -103,15 +163,40 @@ function ResponseStep({ query, prevStep, nextStep }: { query: UseQueryResult<{ t
 	);
 }
 
-function SubmitResponseStep({ query, prevStep }: { query: UseQueryResult<{ text: string }, Error>; prevStep: () => void }) {
+function SubmitResponseStep({
+	query,
+	prevStep,
+	name,
+	setName,
+}: {
+	query: UseQueryResult<{ subject: string; body: string }, Error>;
+	prevStep: () => void;
+	name: string;
+	setName: (name: string) => void;
+}) {
 	return (
 		<fieldset className="grid gap-6 rounded-lg border p-4">
 			<legend className="-ml-1 px-1 text-sm font-medium">Step 3: Submit Response</legend>
-			<Textarea
-				value={query.data?.text || ''}
+			<Label htmlFor="name">Name</Label>
+			<Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" />
+			<Label htmlFor="subject">Subject</Label>
+			<Input
+				id="subject"
+				value={query.data?.subject || ''}
 				onChange={(e) => {
 					if (query.data) {
-						query.data.text = e.target.value;
+						query.data.subject = e.target.value;
+					}
+				}}
+				placeholder="API response subject will appear here"
+			/>
+			<Label htmlFor="body">Body</Label>
+			<Textarea
+				id="body"
+				value={query.data?.body || ''}
+				onChange={(e) => {
+					if (query.data) {
+						query.data.body = e.target.value;
 					}
 				}}
 				rows={6}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AutoComplete } from "../ui/autocomplete";
 import { useQuery } from "@tanstack/react-query";
 
-export default function UserAutoComplete() {
+export default function UserAutoComplete({setCurrentUser} : {setCurrentUser: React.Dispatch<React.SetStateAction<string | null>>}) {
     const [selectedValue, setSelectedValue] = useState<string>("");
     const [searchValue, setSearchValue] = useState<string>("");
   
@@ -21,7 +21,7 @@ export default function UserAutoComplete() {
     return (
       <AutoComplete
         selectedValue={selectedValue}
-        onSelectedValueChange={setSelectedValue}
+        onSelectedValueChange={setCurrentUser}
         searchValue={searchValue}
         onSearchValueChange={setSearchValue}
         items={data || []}
